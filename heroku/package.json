@@ -2,9 +2,11 @@
   "name": "internet-remote-controler",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "deploy": "git push heroku main && heroku ps:scale web=1"
   },
   "dependencies": {
-    "express": "^4.15.2"
+    "net": "^1.0.2",
+    "node-fetch": "^3.2.10"
   }
 }
