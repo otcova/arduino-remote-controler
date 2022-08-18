@@ -8,15 +8,14 @@ import("node-fetch").then(({ default: fetch }) => {
 		fetch("https://raw.githubusercontent.com/otcova/internet-remote-controler/main/state.txt")
 			.then(response => response.json())
 			.then(data => {
-				socket.write("" + data);
+				socket.write('HTTP/1.0 200 OK\r\n\r\n' + data)
 				socket.end()
 			})
 	}
 
 	const sendHello = socket => {
 		console.log("Sending hello");
-		socket.write('HTTP/1.0 200 OK\r\n\r\n')
-		socket.write('Hello world')
+		socket.write('HTTP/1.0 200 OK\r\n\r\nHello world')
 		socket.end()
 	}
 

@@ -5,8 +5,8 @@
 #define BUZZER_PIN 9
 #define BUZZER_GND_PIN 7
 
-//#define PRINTLN(x) Serial.println
-//#define PRINT(x) Serial.print
+//#define PRINTLN(x) Serial.println(x)
+//#define PRINT(x) Serial.print(x)
 #define PRINTLN(x)
 #define PRINT(x)
 

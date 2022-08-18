@@ -3,7 +3,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "deploy": "git push heroku main && heroku ps:scale web=1"
+    "deploy": "git push heroku main && heroku ps:scale web=1",
+    "log": "heroku logs --tail"
   },
   "dependencies": {
     "net": "^1.0.2",

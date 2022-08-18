@@ -32,7 +32,9 @@ char reciveHttpResponce() {
   while (client.connected()) {
     int len = client.available();
     if (len > 0) {
-      char data = client.read();
+      byte buffer[200];
+      if (len > 200) len = 2000;
+      char data = buffer[len-1];
       PRINTLN("Data: ");
       PRINTLN(data);
       client.stop();
