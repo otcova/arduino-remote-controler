@@ -5,10 +5,10 @@
 #define BUZZER_PIN 9
 #define BUZZER_GND_PIN 7
 
-//#define PRINTLN(x) Serial.println(x)
-//#define PRINT(x) Serial.print(x)
-#define PRINTLN(x)
-#define PRINT(x)
+#define PRINTLN(x) Serial.println(x)
+#define PRINT(x) Serial.print(x)
+//#define PRINTLN(x)
+//#define PRINT(x)
 
 char previousData = 0;
 
@@ -23,8 +23,8 @@ void setup() {
   
   analogWrite(BUZZER_PIN, 0);
 
-  //Serial.begin(9600);
-  //while (!Serial);
+  Serial.begin(9600);
+  while (!Serial);
   PRINTLN(":)");
 }
 

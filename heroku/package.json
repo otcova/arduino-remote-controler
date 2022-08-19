@@ -1,9 +1,11 @@
 {
   "name": "internet-remote-controler",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
-    "start": "node index.js",
-    "deploy": "git push heroku main && heroku ps:scale web=1",
+    "start": "node index.mjs",
+    "deploy": "git push heroku main && npm run execute",
+    "start-heroku": "heroku ps:scale web=1",
+    "stop-heroku": "heroku ps:scale web=0",
     "log": "heroku logs --tail"
   },
   "dependencies": {

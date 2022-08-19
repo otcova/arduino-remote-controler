@@ -30,44 +30,54 @@ void sendHttpRequest(const char* host, const char* path) {
 }
 
 char reciveHttpResponce() {
+  PRINTLN("> RECEIVE");
+  char data = 0;
   while (client.connected()) {
     int len = client.available();
     if (len > 0) {
       byte buffer[150];
       if (len > 150) len = 150;
       client.read(buffer, len);
-      char data = buffer[len-1];
-      PRINTLN(len);
-      PRINTLN("Data: ");
-      //Serial.write(buffer, len);
-      PRINT("TRACKING: ");
-      PRINTLN(data);
-      client.stop();
-      return data;
+      data = buffer[len-1];
+      Serial.write(buffer, len);
     }
   }
-  
   client.stop();
-  return 0;
+
+  PRINTLN();
+  PRINT("Data: ");
+  PRINTLN(data);
+  
+  return data;
 }
 
 char fetchGet(const char* host, const char* path) {
   initializeEthernet();
-  char c = 0;
-  bool exitLoop = true;
-  for (int n = 0; exitLoop || n < 10; ++n) {
-    exitLoop = true;
-    sendHttpRequest(host, path);
-    c = reciveHttpResponce();
-    if (c != '0' || c != '1') {
-      exitLoop = false;
-      continue;
-    }
+  PRINTLN("----- FETCH -----");
+  char data = 0;
+  bool receivedDataIsStable= true;
   
-    for (int i = 0; i < 3; ++i) {
-      sendHttpRequest(host, path);
-      if (c != reciveHttpResponce()) exitLoop = false;
+  for (int n = 0; n < 10; ++n) {
+    receivedDataIsStable = true;
+    
+    sendHttpRequest(host, path);
+    data = reciveHttpResponce();
+    
+    if (data != '0' && data != '1') {
+      receivedDataIsStable = false;
+      data = 0;
+    } else {
+      for (int i = 0; i < 4; ++i) {
+        sendHttpRequest(host, path);
+        if (data != reciveHttpResponce())
+          receivedDataIsStable = false;
+      }
     }
+    
+    if (receivedDataIsStable)
+      break;
+    delay(1000);
   }
-  return c;
+  
+  return data;
 }
