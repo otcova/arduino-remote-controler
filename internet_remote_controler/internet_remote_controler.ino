@@ -5,12 +5,23 @@
 #define BUZZER_PIN 9
 #define BUZZER_GND_PIN 7
 
+#define SETUP_PRINT(x) Serial.begin(9600); while (!Serial)
 #define PRINTLN(x) Serial.println(x)
 #define PRINT(x) Serial.print(x)
+// #define SETUP_PRINT(x)
 //#define PRINTLN(x)
 //#define PRINT(x)
 
-char previousData = 0;
+
+struct Response {
+  bool is_valid;
+  bool switch_state;
+  short sleep_for_minutes;
+  static byte past_switch_state;
+  Response(byte, byte);
+  void use_response();
+  void trigger_switch();
+};
 
 void setup() {
   pinMode(SWITCH_PIN, OUTPUT);
@@ -23,18 +34,16 @@ void setup() {
   
   analogWrite(BUZZER_PIN, 0);
 
-  Serial.begin(9600);
-  while (!Serial);
+  SETUP_PRINT();
   PRINTLN(":)");
 }
 
 void loop() {
-  char data = fetchGet("internet-remote-controler.herokuapp.com", "/state");
-  if (data != 0 && previousData != data) {
-    if (previousData != 0) triggerSwitch();
-    previousData = data;
+  Response response = fetchGet("api.github.com", "/repos/otcova/internet-remote-controler/contents/arduino-data.txt");
+  if (response.is_valid && response.trigger_switch()) {
+    triggerSwitch();
   }
-  sleep();
+  sleep(response.sleep_for_minutes);
 }
 
 void triggerSwitch() {

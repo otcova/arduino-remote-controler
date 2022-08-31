@@ -7,77 +7,108 @@ IPAddress ip(192, 168, 0, 177);
 IPAddress myDns(192, 168, 1, 1);
 EthernetClient client;
 
+
+struct Response {
+  bool is_valid;
+  bool switch_state;
+  short sleep_for_minutes;
+  static byte past_switch_state;
+  Response(byte, byte);
+  void use_response();
+  void trigger_switch();
+};
+
+static byte Response::past_switch_state = 0;
+
+Response::Response(byte switch_state_byte, byte sleep_time_byte) {
+  is_valid = '0' <= switch_state && switch_state <= '9' && 
+    '0' <= sleep_time_byte && sleep_time_byte <= '9';
+    
+  switch_state = switch_state_byte
+  sleep_for_minutes = 1 << (sleep_time_byte - '0')
+}
+
+void Response::use_response() {
+  past_switch_state = switch_state
+}
+
+bool Response::trigger_switch() {
+  if (past_switch_state == 0) return false
+  return past_switch_state == switch_state
+}
+
+
+
 void initializeEthernet() {
   if (Ethernet.begin(mac) == 0) {
     if (Ethernet.hardwareStatus() == EthernetNoHardware)
-      fatalError("Ethernet shield was not found");
+      fatalError(F("Ethernet shield was not found"));
     if (Ethernet.linkStatus() == LinkOFF)
-      fatalError("Ethernet cable is not connected.");
+      fatalError(F("Ethernet cable is not connected."));
     Ethernet.begin(mac, ip, myDns);
   }
 }
 
 void sendHttpRequest(const char* host, const char* path) {
+  // client.setTimeout(1000);
   client.connect(host, 80);
-  client.print("GET ");
+  client.print(F("GET "));
+  
   client.print(path);
-  client.println(" HTTP/1.1");
-  client.println("Clear-Site-Data: \"*\"");
-  client.print("Host: ");
+  client.println(F(" HTTP/1.1"));
+  
+  client.println(F("accept: accept: application/vnd.github.v3+json"));
+  
+  client.println(F("Clear-Site-Data: \"*\""));
+  
+  client.print(F("Host: "));
   client.println(host);
-  client.println("Connection: close");
+  
+  client.println(F("Connection: close"));
+  
   client.println();
 }
 
-char reciveHttpResponce() {
-  PRINTLN("> RECEIVE");
-  char data = 0;
+
+Response reciveHttpResponse() {
+  PRINTLN(F("> RECEIVE"));
+  
+  byte response_switch_state_byte = 0;
+  byte response_sleep_time_byte = 0;
+  
   while (client.connected()) {
     int len = client.available();
     if (len > 0) {
-      byte buffer[150];
-      if (len > 150) len = 150;
+      byte buffer[128];
+      if (len > 128) len = 128;
       client.read(buffer, len);
-      data = buffer[len-1];
-      Serial.write(buffer, len);
+      if (len > 1) response_switch_state_byte = buffer[len-2];
+      response_sleep_time_byte = buffer[len-1];
     }
   }
   client.stop();
-
-  PRINTLN();
-  PRINT("Data: ");
-  PRINTLN(data);
   
-  return data;
+  Response response = Response(response_switch_state_byte, response_sleep_time_byte);
+  
+  PRINTLN();
+  PRINT(F("Data: "));
+  PRINTLN(response.switchState);
+  PRINTLN(response.sleepForMinutes);
+  
+  return response;
 }
 
-char fetchGet(const char* host, const char* path) {
+Response fetchGet(const char* host, const char* path) {
   initializeEthernet();
-  PRINTLN("----- FETCH -----");
-  char data = 0;
-  bool receivedDataIsStable= true;
+  PRINTLN(F("----- FETCH -----"));
   
-  for (int n = 0; n < 10; ++n) {
-    receivedDataIsStable = true;
-    
-    sendHttpRequest(host, path);
-    data = reciveHttpResponce();
-    
-    if (data != '0' && data != '1') {
-      receivedDataIsStable = false;
-      data = 0;
-    } else {
-      for (int i = 0; i < 4; ++i) {
-        sendHttpRequest(host, path);
-        if (data != reciveHttpResponce())
-          receivedDataIsStable = false;
-      }
-    }
-    
-    if (receivedDataIsStable)
-      break;
-    delay(1000);
+  Response response = reciveHttpResponse();
+  
+  if (response.is_valid && response.trigger_switch()) {
+    Response check_response = reciveHttpResponse();
+    if (!check_response.is_valid || !response.trigger_switch())
+      response.is_valid = false
   }
   
-  return data;
+  return response;
 }
