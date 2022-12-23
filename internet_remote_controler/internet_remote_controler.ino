@@ -1,26 +1,30 @@
 #include "LowPower.h"
 
+#define LOG
+
 #define SWITCH_PIN 5
 #define TRANSISTOR_BASE_PIN 2
 #define BUZZER_PIN 9
 #define BUZZER_GND_PIN 7
 
+#ifdef LOG
 #define SETUP_PRINT(x) Serial.begin(9600); while (!Serial)
 #define PRINTLN(x) Serial.println(x)
 #define PRINT(x) Serial.print(x)
-// #define SETUP_PRINT(x)
-//#define PRINTLN(x)
-//#define PRINT(x)
+#define FATAL_ERROR(x) {PRINT(F("[FATAL-ERROR] ")); PRINTLN(x); powerOff();}
+#define PRINT_ERROR(x) {PRINT(F("[ERROR] ")); PRINTLN(x);}
+#else
+#define SETUP_PRINT(x)
+#define PRINTLN(x)
+#define PRINT(x)
+#define FATAL_ERROR(x) powerOff()
+#define PRINT_ERROR(x)
+#endif
 
-
-struct Response {
-  bool is_valid;
-  bool switch_state;
-  short sleep_for_minutes;
-  static byte past_switch_state;
-  Response(byte, byte);
-  void use_response();
-  void trigger_switch();
+enum Response {
+    Invalid, // Fetch resulted in error
+    Change, // The state.txt have chaned => open pc
+    Continue, // The state.txt haven't changed => do not open pc
 };
 
 void setup() {
@@ -39,11 +43,12 @@ void setup() {
 }
 
 void loop() {
-  Response response = fetchGet("api.github.com", "/repos/otcova/internet-remote-controler/contents/arduino-data.txt");
-  if (response.is_valid && response.trigger_switch()) {
-    triggerSwitch();
-  }
-  sleep(response.sleep_for_minutes);
+  Response response = fetchGet("internet-remote.ddns.net", "/state.txt");
+  if (response == Response::Change) triggerSwitch();
+  else if (response == Response::Invalid) {
+    PRINT_ERROR(F("Invalid fetch response"));
+    sleep(9);
+  } else sleep(3);
 }
 
 void triggerSwitch() {
