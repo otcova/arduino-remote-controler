@@ -10,38 +10,32 @@ EthernetClient client;
 byte past_state = 0;
 
 
-void initializeEthernet()
-{
-    if (Ethernet.begin(mac) == 0) {
-        if (Ethernet.hardwareStatus() == EthernetNoHardware)
+Result initializeEthernet()
+{   
+    if (Ethernet.begin(mac, 5000, 1000) == 0) {
+        PRINT_ERROR(F("Failed to configure Ethernet using DHCP"));
+        if (Ethernet.hardwareStatus() == EthernetNoHardware) {
             FATAL_ERROR(F("Ethernet shield was not found"));
-        if (Ethernet.linkStatus() == LinkOFF)
+        }
+        if (Ethernet.linkStatus() == LinkOFF) {
             FATAL_ERROR(F("Ethernet cable is not connected."));
-        PRINTLN("begin");
-        Ethernet.begin(mac, ip, myDns);
+        }
+        return Result::Error;
     }
     PRINTLN(F("ETHERNET INIT DONE"));
+    return Result::Ok;
 }
 
-Result sendHttpRequest(const char* host, const char* path)
+Result sendHttpRequest()
 {
-    if (!client.connect(host, 80)) {
+    if (!client.connect("internet-remote.ddns.net", 80)) {
         PRINT_ERROR(F("Conection failed"));
         return Result::Error;
     }
 
-    client.print(F("GET "));
-    client.print(path);
-    client.println(F(" HTTP/1.1"));
-
-    // client.println(F("accept: accept: application/vnd.github.v3+json"));
-    // client.println(F("Clear-Site-Data: \"*\""));
-
-    client.print(F("Host: "));
-    client.println(host);
-
+    client.println(F("GET /state.txt HTTP/1.1"));
+    client.println(F("Host: internet-remote.ddns.net"));
     client.println(F("Connection: close"));
-
     client.println();
     return Result::Ok;
 }
@@ -106,10 +100,10 @@ Response reciveHttpResponse()
     return Response::Invalid;
 }
 
-Response fetchGet(const char* host, const char* path)
+Response fetchGet()
 {
     PRINTLN(F("----- FETCH -----"));
-    initializeEthernet();
-    if (sendHttpRequest(host, path) == Result::Error) return Response::Invalid;
+    if (initializeEthernet() == Result::Error) return Response::Invalid;
+    if (sendHttpRequest() == Result::Error) return Response::Invalid;
     return reciveHttpResponse();
 }
