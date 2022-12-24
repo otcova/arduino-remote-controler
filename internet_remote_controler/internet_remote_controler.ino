@@ -33,18 +33,19 @@ enum Result {
 };
 
 void setup() {
-  pinMode(SWITCH_PIN, OUTPUT);
-  
-  pinMode(ETHERNET_SWITCH, OUTPUT);
-  digitalWrite(ETHERNET_SWITCH, LOW);
-  
-  pinMode(BUZZER_GND_PIN, OUTPUT);
-  digitalWrite(BUZZER_GND_PIN, LOW);
-  
-  analogWrite(BUZZER_PIN, 0);
-
-  SETUP_PRINT();
-  PRINTLN(":)");
+    pinMode(SWITCH_PIN, OUTPUT);
+    digitalWrite(SWITCH_PIN, LOW);
+    
+    pinMode(ETHERNET_SWITCH, OUTPUT);
+    digitalWrite(ETHERNET_SWITCH, LOW);
+    
+    pinMode(BUZZER_GND_PIN, OUTPUT);
+    digitalWrite(BUZZER_GND_PIN, LOW);
+    
+    analogWrite(BUZZER_PIN, 0);
+    
+    SETUP_PRINT();
+    PRINTLN(":)");
 }
 
 void loop() {
@@ -64,7 +65,7 @@ void loop() {
 void triggerSwitch() {
     warning_beep();
     digitalWrite(SWITCH_PIN, HIGH);
-    delay(1000);
+    delay(800);
     digitalWrite(SWITCH_PIN, LOW);
 }
 
