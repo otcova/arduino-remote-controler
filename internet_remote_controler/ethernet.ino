@@ -17,13 +17,18 @@ void initializeEthernet()
             FATAL_ERROR(F("Ethernet shield was not found"));
         if (Ethernet.linkStatus() == LinkOFF)
             FATAL_ERROR(F("Ethernet cable is not connected."));
+        PRINTLN("begin");
         Ethernet.begin(mac, ip, myDns);
     }
+    PRINTLN(F("ETHERNET INIT DONE"));
 }
 
-void sendHttpRequest(const char* host, const char* path)
+Result sendHttpRequest(const char* host, const char* path)
 {
-    client.connect(host, 80);
+    if (!client.connect(host, 80)) {
+        PRINT_ERROR(F("Conection failed"));
+        return Result::Error;
+    }
 
     client.print(F("GET "));
     client.print(path);
@@ -38,6 +43,7 @@ void sendHttpRequest(const char* host, const char* path)
     client.println(F("Connection: close"));
 
     client.println();
+    return Result::Ok;
 }
 
 Response reciveHttpResponse()
@@ -104,6 +110,6 @@ Response fetchGet(const char* host, const char* path)
 {
     PRINTLN(F("----- FETCH -----"));
     initializeEthernet();
-    sendHttpRequest(host, path);
+    if (sendHttpRequest(host, path) == Result::Error) return Response::Invalid;
     return reciveHttpResponse();
 }

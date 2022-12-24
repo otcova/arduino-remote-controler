@@ -8,7 +8,7 @@
 #define BUZZER_GND_PIN 7
 
 #ifdef LOG
-#define SETUP_PRINT(x) Serial.begin(9600); while (!Serial)
+#define SETUP_PRINT(x) Serial.begin(500000); while (!Serial)
 #define PRINTLN(x) Serial.println(x)
 #define PRINT(x) Serial.print(x)
 #define FATAL_ERROR(x) {PRINT(F("[FATAL-ERROR] ")); PRINTLN(x); powerOff();}
@@ -25,6 +25,11 @@ enum Response {
     Invalid, // Fetch resulted in error
     Change, // The state.txt have chaned => open pc
     Continue, // The state.txt haven't changed => do not open pc
+};
+
+enum Result {
+    Ok,
+    Error,
 };
 
 void setup() {
@@ -45,10 +50,12 @@ void setup() {
 void loop() {
   Response response = fetchGet("internet-remote.ddns.net", "/state.txt");
   if (response == Response::Change) triggerSwitch();
-  else if (response == Response::Invalid) {
-    PRINT_ERROR(F("Invalid fetch response"));
-    sleep(9);
-  } else sleep(3);
+  
+  #ifdef LOG
+  else if (response == Response::Invalid) PRINT_ERROR(F("Invalid fetch response"));
+  #endif
+  
+  sleep(3);
 }
 
 void triggerSwitch() {
