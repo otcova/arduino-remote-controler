@@ -55,13 +55,13 @@ void loop() {
   else if (response == Response::Invalid) PRINT_ERROR(F("Invalid fetch response"));
   #endif
   
-  sleep(3);
+  sleep(2);
 }
 
 void triggerSwitch() {
   warning_beep();
   digitalWrite(SWITCH_PIN, HIGH);
-  delay(500);
+  delay(1000);
   digitalWrite(SWITCH_PIN, LOW);
 }
 
