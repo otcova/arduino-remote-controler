@@ -129,11 +129,11 @@ function update_scene() {
 			arrow.img.remove()
 			continue;
 		}
-		
+
 		let angle_target = Math.atan2(arrow_y - y, arrow_x - x) - Math.PI / 3
-		let angle_dist = (angle_target - arrow.angle + Math.PI) % (Math.PI*2) - Math.PI
+		let angle_dist = (angle_target - arrow.angle + Math.PI) % (Math.PI * 2) - Math.PI
 		arrow.angle += angle_dist * 0.05
-		
+
 		arrow.img.style.translate = `${arrow_x}px ${arrow_y}px`
 		arrow.img.style.rotate = arrow.angle + "rad"
 	}
@@ -146,6 +146,13 @@ document.onmousemove = event => {
 	mouseY = event.clientY;
 }
 
+document.ontouchmove = event => {
+	mouseX = event.touches[0].clientX;
+	mouseY = event.touches[0].clientY;
+}
+
+button.ontouchstart = () => buttonDown = true
+document.ontouchend = () => { buttonDown = false }
 
 button.onmousedown = () => buttonDown = true
 document.onmouseup = () => buttonDown = false
