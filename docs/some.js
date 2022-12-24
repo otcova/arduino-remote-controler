@@ -15,10 +15,12 @@ let token
 const input = document.getElementById("input_token_password")
 const button = document.getElementById("btn")
 button.hidden = true
+let sending = false
 
 button.onclick = async () => {
-	if (buttonClick) return
-
+	if (buttonClick || sending) return
+	sending = true
+	
 	const octokit = new Octokit({ auth: token });
 
 	const owner = 'otcova'
