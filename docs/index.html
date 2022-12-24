@@ -25,7 +25,7 @@
 			text-align: center;
 			cursor: pointer;
 			font-family: Arial;
-			font-size: 20px;
+			font-size: 20px !important;
 			font-weight: bold;
 			padding: 10px;
 			outline: none;
@@ -35,7 +35,16 @@
 			background-color: rgb(255 222 102);
 		}
 
+		input:-webkit-autofill,
+		input:-webkit-autofill:hover,
+		input:-webkit-autofill:focus,
+		input:-webkit-autofill:active {
+			-webkit-box-shadow: 0 0 0 30px rgb(255 222 102) inset !important;
+		}
+		
 		button {
+			user-select: none;
+			display: none;
 			cursor: pointer;
 			font-family: Verdana;
 			font-size: 20px;
@@ -62,7 +71,7 @@
 
 <body>
 	<button id="btn">OBRIR ORDINADOR</button>
-	<input id="input"></input>
+	<input id="input_token_password"></input>
 </body>
 
 </html>

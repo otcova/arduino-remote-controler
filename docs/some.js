@@ -12,7 +12,7 @@ function get_auth_token(password) {
 }
 
 let token
-const input = document.getElementById("input")
+const input = document.getElementById("input_token_password")
 const button = document.getElementById("btn")
 button.hidden = true
 
@@ -61,6 +61,7 @@ const arrows = []
 
 function on_correct_password() {
 	button.hidden = false
+	button.style.display = "inline-block"
 	input.hidden = true
 
 	for (let i = 0; i < 200; ++i) {
