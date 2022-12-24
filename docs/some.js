@@ -52,42 +52,45 @@ button.onclick = async () => {
 	buttonClick = true
 }
 
-let seed = 9;
+let seed = 2;
 function random() {
 	var x = Math.sin(seed++) * 10000;
 	return x - Math.floor(x);
 }
 const arrows = []
+for (let i = 0; i < 200; ++i) {
+	const img = document.createElement("img")
+	document.body.append(img)
+	img.src = "./cursor.png"
+	img.width = 100
+	img.className = "cursor"
+
+	let x, y;
+	let collision = true;
+	while (collision) {
+		x = random() * 2000 - 1000
+		y = random() * 2000 - 1000
+		collision = x ** 2 < 200 ** 2 && y ** 2 < 80 ** 2;
+		for (const arrow of arrows) {
+			if ((x - arrow.x) ** 2 + (y - arrow.y) ** 2 < 50 ** 2) {
+				collision = true;
+				break;
+			}
+		}
+	}
+
+	img.style.translate = `${x}px ${y}px`
+	const angle = random() * 2 * Math.PI - Math.PI
+	img.style.rotate = angle + "rad"
+	arrows.push({ x, y, img, offset: { x: 0, y: 0 }, angle })
+}
 
 function on_correct_password() {
 	button.hidden = false
 	button.style.display = "inline-block"
 	input.hidden = true
 
-	for (let i = 0; i < 200; ++i) {
-		const img = document.createElement("img")
-		document.body.append(img)
-		img.src = "./cursor.png"
-		img.width = 100
-		img.className = "cursor"
 
-		let x, y;
-		let collision = true;
-		while (collision) {
-			x = random() * 2000 - 1000
-			y = random() * 2000 - 1000
-			collision = x ** 2 < 200 ** 2 && y ** 2 < 50 ** 2;
-			for (const arrow of arrows) {
-				if ((x - arrow.x) ** 2 + (y - arrow.y) ** 2 < 50 ** 2) {
-					collision = true;
-					break;
-				}
-			}
-		}
-
-
-		arrows.push({ x, y, img, offset: { x: 0, y: 0 } })
-	}
 
 	update_scene();
 }
@@ -126,7 +129,11 @@ function update_scene() {
 			arrow.img.remove()
 			continue;
 		}
-		arrow.angle = Math.atan2(arrow_y - y, arrow_x - x) - Math.PI / 3
+		
+		let angle_target = Math.atan2(arrow_y - y, arrow_x - x) - Math.PI / 3
+		let angle_dist = (angle_target - arrow.angle + Math.PI) % (Math.PI*2) - Math.PI
+		arrow.angle += angle_dist * 0.05
+		
 		arrow.img.style.translate = `${arrow_x}px ${arrow_y}px`
 		arrow.img.style.rotate = arrow.angle + "rad"
 	}
