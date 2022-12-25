@@ -58,9 +58,9 @@ void loop() {
     power_off_ethernet();
     
     if (response == Response::Invalid) {
-        if (++error_count > 3) resetArduino();
+        if (++error_count > 2) resetArduino();
         PRINT_ERROR(F("Invalid fetch response"));
-        sleep(2);
+        sleep(1);
     } else {
         error_count = 0;
         if (response == Response::Change) triggerSwitch();
