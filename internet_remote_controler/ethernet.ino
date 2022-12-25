@@ -1,17 +1,13 @@
 #include <Ethernet.h>
 #include <SPI.h>
 
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-
-IPAddress ip(192, 168, 0, 177);
-IPAddress myDns(192, 168, 1, 1);
 EthernetClient client;
-
 byte past_state = 0;
 
-
 Result initializeEthernet()
-{   
+{
+    const byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+    
     if (Ethernet.begin(mac, 5000, 1000) == 0) {
         PRINT_ERROR(F("Failed to configure Ethernet using DHCP"));
         if (Ethernet.hardwareStatus() == EthernetNoHardware) {
@@ -22,6 +18,8 @@ Result initializeEthernet()
         }
         return Result::Error;
     }
+    
+    client = EthernetClient();
     PRINTLN(F("ETHERNET INIT DONE"));
     return Result::Ok;
 }

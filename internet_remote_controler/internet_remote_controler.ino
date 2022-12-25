@@ -32,6 +32,10 @@ enum Result {
     Error,
 };
 
+int error_count = 0;
+
+void(* resetArduino) (void) = 0;
+
 void setup() {
     pinMode(SWITCH_PIN, OUTPUT);
     digitalWrite(SWITCH_PIN, LOW);
@@ -53,10 +57,13 @@ void loop() {
     Response response = fetchGet();
     power_off_ethernet();
     
-    if (response == Response::Change) triggerSwitch();
-    else if (response == Response::Invalid) {
+    if (response == Response::Invalid) {
+        if (++error_count > 3) resetArduino();
         PRINT_ERROR(F("Invalid fetch response"));
         sleep(2);
+    } else {
+        error_count = 0;
+        if (response == Response::Change) triggerSwitch();
     }
     
     sleep(2);
