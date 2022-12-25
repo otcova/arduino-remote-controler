@@ -54,13 +54,13 @@ button.onclick = async () => {
 	buttonClick = true
 }
 
-let seed = 2;
+let seed = 1;
 function random() {
 	var x = Math.sin(seed++) * 10000;
 	return x - Math.floor(x);
 }
 const arrows = []
-for (let i = 0; i < 200; ++i) {
+for (let i = 0; i < 100; ++i) {
 	const img = document.createElement("img")
 	document.body.append(img)
 	img.src = "./cursor.png"
@@ -70,11 +70,13 @@ for (let i = 0; i < 200; ++i) {
 	let x, y;
 	let collision = true;
 	while (collision) {
-		x = random() * 2000 - 1000
-		y = random() * 2000 - 1000
+		const a = random() * Math.PI * 2
+		const r = random() * 1000
+		x = Math.cos(a) * r
+		y = Math.sin(a) * r
 		collision = x ** 2 < 200 ** 2 && y ** 2 < 80 ** 2;
 		for (const arrow of arrows) {
-			if ((x - arrow.x) ** 2 + (y - arrow.y) ** 2 < 50 ** 2) {
+			if ((x - arrow.x) ** 2 + (y - arrow.y) ** 2 < 75 ** 2) {
 				collision = true;
 				break;
 			}
@@ -111,8 +113,11 @@ function update_scene() {
 	button.style.boxShadow = `${1 - .5 * x}px ${1 - .5 * y}px #000`
 	button.style.translate = `${x}px ${y}px`
 
+	x *= 4;
+	y *= 4;
+	
 	seed = 1
-
+	
 	for (const arrow of arrows) {
 		let speed = 0.3 * random() + 1.02
 		if (buttonClick) {
@@ -132,8 +137,10 @@ function update_scene() {
 			continue;
 		}
 
-		let angle_target = Math.atan2(arrow_y - y, arrow_x - x) - Math.PI / 3
-		let angle_dist = (angle_target - arrow.angle + Math.PI) % (Math.PI * 2) - Math.PI
+		let angle_target = Math.atan2(arrow_y - y, arrow_x - x) - 1.15
+		let angle_dist = (angle_target - arrow.angle + Math.PI)  % (Math.PI * 2);
+		if (angle_dist < 0) angle_dist += Math.PI*2 
+		angle_dist = angle_dist - Math.PI
 		arrow.angle += angle_dist * 0.05
 
 		arrow.img.style.translate = `${arrow_x}px ${arrow_y}px`
