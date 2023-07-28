@@ -1,4 +1,4 @@
-import { Octokit, App } from "https://cdn.skypack.dev/octokit";
+import { Octokit, App } from "https://esm.sh/octokit";
 
 function get_auth_token(password) {
 	try {
